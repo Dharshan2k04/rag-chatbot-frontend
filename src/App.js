@@ -135,12 +135,13 @@ function App() {
           }
         }
       }
-    } catch (err) {
+      } catch (err) {
       console.error(err);
       setLoading(false);
+      const errorMsgId = Date.now();
       setMessages((prev) =>
         prev.map((msg) =>
-          msg.id === aiMsgId && !msg.message
+          msg.id === errorMsgId && !msg.message
             ? { ...msg, message: "Sorry, I encountered an error. Please try again." }
             : msg
         )
