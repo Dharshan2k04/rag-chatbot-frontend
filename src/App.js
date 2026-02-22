@@ -7,11 +7,14 @@ import LoadingSkeleton from "./components/LoadingSkeleton";
 import api from "./api";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Get API URL from environment or use production URL
+const API_BASE_URL = process.env.REACT_APP_API_URL || "https://dharshan0707-rag-chatbot-api.hf.space";
+
 function App() {
   const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [useStreaming, setUseStreaming] = useState(true); // Enable streaming by default
+  const [useStreaming, setUseStreaming] = useState(false); // Streaming OFF by default
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -75,16 +78,14 @@ function App() {
     setLoading(true);
 
     try {
-      // Create initial AI message
       const aiMsgId = Date.now();
       setMessages((prev) => [
         ...prev,
         { id: aiMsgId, role: "assistant", message: "" },
       ]);
 
-      // Use fetch with streaming
       const response = await fetch(
-        `http://127.0.0.1:8000/chat/${chatId}/stream?query=${encodeURIComponent(input)}&regenerate=${isRegenerate}`,
+        `${API_BASE_URL}/chat/${chatId}/stream?query=${encodeURIComponent(input)}&regenerate=${isRegenerate}`,
         {
           method: 'POST',
           headers: {
@@ -108,7 +109,6 @@ function App() {
           break;
         }
 
-        // Decode the chunk
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n');
 
@@ -120,7 +120,6 @@ function App() {
               if (data.done) {
                 setLoading(false);
               } else if (data.token) {
-                // Append token to message
                 setMessages((prev) =>
                   prev.map((msg) =>
                     msg.id === aiMsgId
@@ -135,17 +134,16 @@ function App() {
           }
         }
       }
-      } catch (err) {
+    } catch (err) {
       console.error(err);
       setLoading(false);
-      const errorMsgId = Date.now();
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === errorMsgId && !msg.message
-            ? { ...msg, message: "Sorry, I encountered an error. Please try again." }
-            : msg
-        )
-      );
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          message: "Sorry, I encountered an error. Please try again.",
+        },
+      ]);
     }
   };
 
@@ -269,7 +267,8 @@ function App() {
                   </h2>
                   <p className="text-gray-500 max-w-md">
                     Upload a document using the + button below and start asking
-                    questions. Streaming is enabled for instant responses!
+                    questions. I'll help you find answers based on your
+                    documents.
                   </p>
                 </div>
               </motion.div>
