@@ -3,7 +3,6 @@ import {
   MessageSquarePlus,
   Moon,
   Sun,
-  Settings,
   History,
   ChevronRight,
   MessageSquare,
@@ -183,13 +182,6 @@ export default function ModernSidebar({ onNewChat, currentChatId, onSelectChat }
             </span>
           )}
         </button>
-
-        {!collapsed && (
-          <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-            <Settings size={18} />
-            <span className="text-sm">Settings</span>
-          </button>
-        )}
       </div>
     </div>
   );
